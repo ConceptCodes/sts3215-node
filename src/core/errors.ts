@@ -5,3 +5,9 @@ export class InvalidIdError extends RangeError {
     super(ErrorMessage.INVALID_SERVO_ID.replace("{id}", id.toString()));
   }
 }
+
+export class SerialWriteError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
