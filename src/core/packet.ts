@@ -2,12 +2,12 @@ import type {
   BuildPacketFn,
   CommandParamMap,
   GenerateChecksumFn,
-} from "../@types";
+} from "../@types/index.js";
 import { createLogger } from "./logger.js";
-import { validId } from "../utils";
-import { PACKET_HEADER_BYTES } from "../utils/constants";
-import { Command } from "./commands";
-import { InvalidIdError } from "./errors";
+import { validId } from "../utils/index.js";
+import { PACKET_HEADER_BYTES } from "../utils/constants.js";
+import { Command } from "./commands.js";
+import { InvalidIdError } from "./errors.js";
 
 const logger = createLogger("PACKET");
 

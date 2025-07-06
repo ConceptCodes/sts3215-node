@@ -3,10 +3,10 @@ export enum ErrorMessage {
   INVALID_PACKET_HEADER = "Header bytes does not match",
   MISMATCH_SERVO_ID = "The servo id {id} does not match the expected value",
   INVALID_PACKET_LENGTH = "Declared length byte does not match actual length",
-  INVALID_COMMAND = "The command is not valid"
+  INVALID_COMMAND = "The command is not valid",
 }
 
-export const PACKET_HEADER_BYTES = [0xfa, 0xaf];
+export const PACKET_HEADER_BYTES = [0xff, 0xff];
 
 /**
  *
@@ -59,7 +59,7 @@ export enum STSRegister {
   LED = 0x19,
   GOAL_POSITION = 0x1a,
   MOVING_SPEED = 0x1e,
-  PRESENT_POSITION = 0x24,
+  PRESENT_POSITION = 0x38, // Updated to 0x38 for STS3215
   PRESENT_SPEED = 0x26,
   PRESENT_LOAD = 0x28,
   PRESENT_VOLTAGE = 0x2a,

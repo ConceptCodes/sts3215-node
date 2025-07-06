@@ -1,11 +1,11 @@
-import type { MoveToArgs } from "../@types";
-import { Command } from "../core/commands";
-import { InvalidIdError } from "../core/errors";
+import type { MoveToArgs } from "../@types/index.js";
+import { Command } from "../core/commands.js";
+import { InvalidIdError } from "../core/errors.js";
 import { createLogger } from "../core/logger.js";
-import { buildPacket } from "../core/packet";
-import type SerialTransport from "../transport/serial";
-import { parseResponse, toLittleEndianBytes, validId } from "../utils";
-import { STSRegister } from "../utils/constants";
+import { buildPacket } from "../core/packet.js";
+import type SerialTransport from "../transport/serial.js";
+import { parseResponse, toLittleEndianBytes, validId } from "../utils/index.js";
+import { STSRegister } from "../utils/constants.js";
 
 const logger = createLogger("SERVO");
 
@@ -96,7 +96,7 @@ export class Servo {
       let response = await this.transport.waitForResponse(
         this.id,
         Command.READ_DATA,
-        500
+        1_000
       );
 
       response = parseResponse(response);

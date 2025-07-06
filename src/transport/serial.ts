@@ -1,40 +1,36 @@
-import { SerialPort } from "@serialport/stream";
+import { SerialPortStream } from "@serialport/stream";
 import { autoDetect } from "@serialport/bindings-cpp";
-import { SerialWriteError } from "../core/errors";
-import type { Command } from "../core/commands";
-import { validPacket } from "../utils";
+import { SerialWriteError } from "../core/errors.js";
+import type { Command } from "../core/commands.js";
+import { validPacket } from "../utils/index.js";
 import { createLogger } from "../core/logger.js";
 
 const logger = createLogger("SERIAL_TRANSPORT");
 
-SerialPort.bindings = autoDetect();
-
 class SerialTransport {
-  private port: SerialPort;
+  private port: SerialPortStream;
   private baudRate: number;
 
-  constructor(path: string, baudRate: number = 57600) {
-    logger.info("Initializing serial transport", { path, baudRate });
+  constructor(port: string, baudRate: number = 1000000) {
+    logger.info("Initializing serial transport", { port, baudRate });
 
-    this.port = new SerialPort({
-      path,
+    this.port = new SerialPortStream({
+      path: port,
       baudRate,
-      parity: "none",
-      stopBits: 1,
-      dataBits: 8,
+      binding: autoDetect(),
     });
     this.baudRate = baudRate;
 
     this.port.on("open", () => {
-      logger.info("Serial port opened successfully", { path, baudRate });
+      logger.info("Serial port opened successfully", { port, baudRate });
     });
 
     this.port.on("error", (error: Error) => {
-      logger.error("Serial port error", error, { path, baudRate });
+      logger.error("Serial port error", error, { port, baudRate });
     });
 
     this.port.on("close", () => {
-      logger.info("Serial port closed", { path });
+      logger.info("Serial port closed", { port });
     });
   }
 
@@ -63,7 +59,7 @@ class SerialTransport {
     }
 
     return new Promise((resolve, reject) => {
-      this.port.write(data, (err: Error) => {
+      this.port.write(data, (err: Error | null | undefined) => {
         if (err) {
           logger.error("Failed to write data", err, {
             dataLength: data.length,
@@ -96,7 +92,7 @@ class SerialTransport {
   public waitForResponse(
     id: number,
     cmd: Command,
-    timeoutMs = 100
+    timeoutMs = 500
   ): Promise<Uint8Array> {
     logger.debug("Waiting for response", { id, cmd, timeoutMs });
 

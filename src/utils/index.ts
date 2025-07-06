@@ -1,7 +1,7 @@
-import { Command } from "../core/commands";
-import { InvalidPacketError } from "../core/errors";
+import { Command } from "../core/commands.js";
+import { InvalidPacketError } from "../core/errors.js";
 import { createLogger } from "../core/logger.js";
-import { ErrorMessage, PACKET_HEADER_BYTES } from "./constants";
+import { ErrorMessage, PACKET_HEADER_BYTES } from "./constants.js";
 
 const logger = createLogger("UTILS");
 
@@ -132,8 +132,11 @@ export function validPacket(
     throw new InvalidPacketError(ErrorMessage.MISMATCH_SERVO_ID);
   }
 
-  // Validate length
-  if (declaredLength != expectedLength) {
+  // Validate length - but allow for error responses (which are shorter)
+  // Error responses typically have length = 2 (just status byte + checksum)
+  const isErrorResponse = declaredLength === 2 && pkt.length === 6; // Header(2) + ID(1) + Length(1) + Status(1) + Checksum(1) = 6
+
+  if (!isErrorResponse && declaredLength != expectedLength) {
     logger.error(
       "Packet length mismatch",
       new InvalidPacketError(ErrorMessage.INVALID_PACKET_LENGTH),
@@ -142,9 +145,24 @@ export function validPacket(
         declaredLength,
         expectedLength,
         actualPacketLength: pkt.length,
+        isErrorResponse,
       }
     );
     throw new InvalidPacketError(ErrorMessage.INVALID_PACKET_LENGTH);
+  }
+
+  // For error responses, we don't validate the command byte since it's actually a status byte
+  if (isErrorResponse) {
+    const statusByte = pkt[4];
+    logger.warn("Servo returned error response", {
+      id,
+      statusByte: `0x${statusByte!.toString(16).padStart(2, "0")}`,
+      packet: Array.from(pkt)
+        .map((b) => `0x${b.toString(16).padStart(2, "0")}`)
+        .join(" "),
+    });
+    // We still return true for error responses so they can be processed
+    return true;
   }
 
   // Validate command

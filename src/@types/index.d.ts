@@ -1,4 +1,4 @@
-import { Command } from "../core/commands";
+import { Command } from "../core/commands.js";
 
 export type BuildPacketFn<C extends Command = Command> = {
   id: number;

@@ -157,7 +157,7 @@ class Logger {
 export const logger = new Logger({
   level: process.env.LOG_LEVEL
     ? LogLevel[process.env.LOG_LEVEL as keyof typeof LogLevel]
-    : LogLevel.INFO,
+    : LogLevel.DEBUG,
   pretty: process.env.NODE_ENV !== "production",
 });
 
@@ -171,7 +171,7 @@ export function createLogger(
   }
 ): Logger {
   return new Logger({
-    level: options?.level ?? LogLevel.INFO,
+    level: options?.level ?? LogLevel.DEBUG,
     module,
     pretty: options?.pretty,
     destination: options?.destination,
