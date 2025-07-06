@@ -3,10 +3,13 @@ import type {
   CommandParamMap,
   GenerateChecksumFn,
 } from "../@types";
+import { createLogger } from "./logger.js";
 import { validId } from "../utils";
 import { PACKET_HEADER_BYTES } from "../utils/constants";
 import { Command } from "./commands";
 import { InvalidIdError } from "./errors";
+
+const logger = createLogger("PACKET");
 
 const ParamEncoders: {
   [C in Command]: (params: CommandParamMap[C]) => number[];
@@ -35,10 +38,27 @@ const ParamEncoders: {
  */
 export function buildPacket(args: BuildPacketFn): Uint8Array {
   const { id, cmd, params } = args;
-  if (!validId(id)) throw new InvalidIdError(id);
+  logger.debug("Building packet", { id, cmd: Command[cmd], params });
 
-  const paramBytes = ParamEncoders[cmd](params);
+  if (!validId(id)) {
+    logger.error("Invalid servo ID for packet", new InvalidIdError(id), {
+      id,
+      cmd: Command[cmd],
+    });
+    throw new InvalidIdError(id);
+  }
+
+  const paramBytes = (ParamEncoders[cmd] as any)(params);
   const length = paramBytes.length + 3;
+
+  logger.debug("Packet parameters encoded", {
+    id,
+    cmd: Command[cmd],
+    paramBytes: paramBytes
+      .map((b: number) => `0x${b.toString(16).padStart(2, "0")}`)
+      .join(" "),
+    length,
+  });
 
   const bytes: number[] = [
     ...PACKET_HEADER_BYTES,
@@ -55,6 +75,16 @@ export function buildPacket(args: BuildPacketFn): Uint8Array {
   ];
 
   const pkt = new Uint8Array(bytes);
+
+  logger.debug("Packet built successfully", {
+    id,
+    cmd: Command[cmd],
+    packetLength: pkt.length,
+    packet: Array.from(pkt)
+      .map((b) => `0x${b.toString(16).padStart(2, "0")}`)
+      .join(" "),
+  });
+
   return pkt;
 }
 
@@ -69,5 +99,15 @@ export function buildPacket(args: BuildPacketFn): Uint8Array {
 function generateChecksum(args: GenerateChecksumFn): number {
   const { id, length, cmd, paramBytes } = args;
   const sum = id + length + cmd + paramBytes.reduce((a, b) => a + b, 0);
-  return 256 - (sum % 256);
+  const checksum = 256 - (sum % 256);
+
+  logger.debug("Generated checksum", {
+    id,
+    length,
+    cmd: Command[cmd],
+    sum,
+    checksum: `0x${checksum.toString(16).padStart(2, "0")}`,
+  });
+
+  return checksum;
 }
