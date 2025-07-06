@@ -11,3 +11,9 @@ export class SerialWriteError extends Error {
     super(message);
   }
 }
+
+export class InvalidPacketError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
