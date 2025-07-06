@@ -1,11 +1,14 @@
 export enum ErrorMessage {
-  INVALID_SERVO_ID = "The servo id {id} is not within the range (0-253)",
+  INVALID_SERVO_ID = "The servo id {id} is not valid",
+  INVALID_PACKET_HEADER = "Header bytes does not match",
+  MISMATCH_SERVO_ID = "The servo id {id} does not match the expected value",
+  INVALID_PACKET_LENGTH = "Declared length byte does not match actual length",
+  INVALID_COMMAND = "The command is not valid"
 }
 
 export const PACKET_HEADER_BYTES = [0xfa, 0xaf];
 
 /**
- * Enumerates the memory register addresses for the device.
  *
  * Registers are divided into two areas:
  * - EEPROM Area (non-volatile): Persistent configuration registers.
@@ -36,7 +39,7 @@ export const PACKET_HEADER_BYTES = [0xfa, 0xaf];
  * @property {number} PRESENT_VOLTAGE - Current voltage register (RAM).
  * @property {number} PRESENT_TEMPERATURE - Current temperature register (RAM).
  */
-export enum Register {
+export enum STSRegister {
   // EEPROM Area (non-volatile)
   ID = 0x05,
   BAUD_RATE = 0x06,

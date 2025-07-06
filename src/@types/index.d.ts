@@ -13,7 +13,7 @@ export type GenerateChecksumFn = {
   cmd: Command;
 };
 
-export type PingParams = undefined;
+export type PingParams = never;
 export type ReadDataParams = {
   register: number;
   length: number; // number of bytes to read (1 or 2)
@@ -23,8 +23,8 @@ export type WriteDataParams = {
   data: number[]; // must be 1 or 2 bytes depending on register
 };
 export type RegWriteParams = WriteDataParams;
-export type ActionParams = undefined;
-export type ResetParams = undefined;
+export type ActionParams = never;
+export type ResetParams = never;
 export type SyncWriteParams = {
   register: number;
   dataLength: number; // bytes per servo
@@ -63,5 +63,3 @@ export type CommandParamMap = {
 export type MoveToArgs = {
   position: number;
 };
-
-export type WriteFn = (bytes: Uint8Array<ArrayBufferLike>) => Promise<void>;
